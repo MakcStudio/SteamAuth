@@ -15,3 +15,5 @@ or makcstudio@mail.ru
 telegram: @makcstudio
 
 или makcstudio@mail.ru
+
+SDA: https://github.com/MakcStudio/SteamDesktopAuthenticator
