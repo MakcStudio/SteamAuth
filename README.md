@@ -3,7 +3,8 @@ Library fixed for the Steam update of 22.06.2023
 If you sell large amounts of skins and do it by hand, mail me 
 
 telegram: @makcstudio
-makcstudio@mail.ru
+
+or makcstudio@mail.ru
 
 ---------------------
 
@@ -12,4 +13,5 @@ makcstudio@mail.ru
 Если вы продаете большие объемы скинов и делаете это руками, напишите мне 
 
 telegram: @makcstudio
-makcstudio@mail.ru
+
+или makcstudio@mail.ru
