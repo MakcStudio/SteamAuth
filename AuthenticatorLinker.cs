@@ -158,10 +158,10 @@ namespace SteamAuth
             //The act of checking the SMS code is necessary for Steam to finalize adding the phone number to the account.
             //Of course, we only want to check it if we're adding a phone number in the first place...
 
-            if (!String.IsNullOrEmpty(this.PhoneNumber) && !this._checkSMSCode(smsCode))
+            /*if (!String.IsNullOrEmpty(this.PhoneNumber) && !this._checkSMSCode(smsCode))
             {
                 return FinalizeResult.BadSMSCode;
-            }
+            }*/
 
             var postData = new NameValueCollection();
             postData.Add("steamid", _session.SteamID.ToString());
@@ -213,59 +213,6 @@ namespace SteamAuth
 
             return FinalizeResult.GeneralFailure;
         }
-
-        private bool _checkSMSCode(string smsCode)
-        {
-            var postData = new NameValueCollection();
-            postData.Add("op", "check_sms_code");
-            postData.Add("arg", smsCode);
-            postData.Add("checkfortos", "0");
-            postData.Add("skipvoip", "1");
-            postData.Add("sessionid", _session.SessionID);
-
-            string response = SteamWeb.Request(APIEndpoints.COMMUNITY_BASE + "/steamguard/phoneajax", "POST", _session.proxy, _session.proxy_type, postData, _cookies);
-            if (response == null) return false;
-
-            var addPhoneNumberResponse = JsonConvert.DeserializeObject<AddPhoneResponse>(response);
-
-            if (!addPhoneNumberResponse.Success)
-            {
-                Thread.Sleep(3500); //It seems that Steam needs a few seconds to finalize the phone number on the account.
-                return _hasPhoneAttached();
-            }
-
-            return true;
-        }
-
-        private bool _addPhoneNumber()
-        {
-            var postData = new NameValueCollection();
-            postData.Add("op", "add_phone_number");
-            postData.Add("arg", PhoneNumber);
-            postData.Add("sessionid", _session.SessionID);
-
-            string response = SteamWeb.Request(APIEndpoints.COMMUNITY_BASE + "/steamguard/phoneajax", "POST", _session.proxy, _session.proxy_type, postData, _cookies);
-            if (response == null) return false;
-
-            var addPhoneNumberResponse = JsonConvert.DeserializeObject<AddPhoneResponse>(response);
-            return addPhoneNumberResponse.Success;
-        }
-
-        private bool _checkEmailConfirmation()
-        {
-            var postData = new NameValueCollection();
-            postData.Add("op", "email_confirmation");
-            postData.Add("arg", "");
-            postData.Add("sessionid", _session.SessionID);
-
-            string response = SteamWeb.Request(APIEndpoints.COMMUNITY_BASE + "/steamguard/phoneajax", "POST", _session.proxy, _session.proxy_type, postData, _cookies);
-            if (response == null) return false;
-
-            var emailConfirmationResponse = JsonConvert.DeserializeObject<AddPhoneResponse>(response);
-            return emailConfirmationResponse.Success;
-        }
-
-
 
         public bool _get_sms_code(string smscode)
         {
@@ -346,19 +293,6 @@ namespace SteamAuth
             else
                 return true;
         }
-
-       /* private bool _hasPhoneAttached() {
-            var postData = new NameValueCollection();
-            postData.Add("op", "has_phone");
-            postData.Add("arg", "null");
-            postData.Add("sessionid", _session.SessionID);
-
-            string response = SteamWeb.Request(APIEndpoints.COMMUNITY_BASE + "/steamguard/phoneajax", "POST", _session.proxy, _session.proxy_type, postData, _cookies);
-            if (response == null) return false;
-
-            var hasPhoneResponse = JsonConvert.DeserializeObject<HasPhoneResponse>(response);
-            return hasPhoneResponse.HasPhone;
-        }*/
 
         public enum LinkResult
         {
