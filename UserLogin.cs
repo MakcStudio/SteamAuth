@@ -132,13 +132,13 @@ namespace SteamAuth
 
             if (string.IsNullOrEmpty(this.EmailCode) && loginResponse.response.allowed_confirmations != null && loginResponse.response.allowed_confirmations.FirstOrDefault(x => x.confirmation_type == 2) != null)
             {
-               /* multipartData.Clear();
-               
-                multipartData.Add("clientid", loginResponse.response.client_id);
-                multipartData.Add("steamid", loginResponse.response.steamid);
+                /* multipartData.Clear();
 
-                response = SteamWeb.Request(" https://login.steampowered.com/jwt/checkdevice/" + loginResponse.response.steamid, "POST", proxy, proxy_type, multipartData, cookies);
-                if (response == null) return LoginResult.GeneralFailure;*/
+                 multipartData.Add("clientid", loginResponse.response.client_id);
+                 multipartData.Add("steamid", loginResponse.response.steamid);
+
+                 response = SteamWeb.Request(" https://login.steampowered.com/jwt/checkdevice/" + loginResponse.response.steamid, "POST", proxy, proxy_type, multipartData, cookies);
+                 if (response == null) return LoginResult.GeneralFailure;*/
 
 
                 this.RequiresEmail = true;
@@ -201,7 +201,7 @@ namespace SteamAuth
 
             //-------------------------------------
 
-            
+
             multipartData.Clear();
             multipartData.Add("nonce", _finalizelogin.transfer_info.FirstOrDefault(x => x.url == "https://steamcommunity.com/login/settoken").@params.nonce);
             multipartData.Add("auth", _finalizelogin.transfer_info.FirstOrDefault(x => x.url == "https://steamcommunity.com/login/settoken").@params.auth);
@@ -325,14 +325,14 @@ namespace SteamAuth
                 if (loginResponse.message.Contains("There have been too many login failures"))
                     return LoginResult.TooManyFailedLogins;
 
-                if (loginResponse.message.Contains("Incorrect login"))
+                if (loginResponse.message.Contains("Incorrect login") || loginResponse.message.Contains("account name or password that you have entered is incorrect"))
                     return LoginResult.BadCredentials;
             }
 
             if (loginResponse.captcha_needed)
             {
                 this.RequiresCaptcha = true;
-                //this.CaptchaGID = loginResponse.CaptchaGID;
+                this.CaptchaGID = loginResponse.captcha_gid.ToString();
                 return LoginResult.NeedCaptcha;
             }
 
@@ -368,7 +368,8 @@ namespace SteamAuth
                 session.SteamID = ulong.Parse(transfer_parameters.steamid);
                 //session.SteamLogin = session.SteamID + "%7C%7C" + transfer_parameters.SteamLogin;
 
-                session.steamRememberLogin = readableCookies["steamRememberLogin"].Value;
+                /*if (readableCookies["steamRememberLogin"] != null)
+                    session.steamRememberLogin = readableCookies["steamRememberLogin"].Value;*/
 
                 session.SteamLoginSecure = session.SteamID + "%7C%7C" + transfer_parameters.token_secure;
                 session.WebCookie = transfer_parameters.webcookie;
@@ -391,7 +392,7 @@ namespace SteamAuth
             public string message { get; set; }
             public bool clear_password_field { get; set; }
             public bool captcha_needed { get; set; }
-            //public int captcha_gid { get; set; }
+            public object captcha_gid { get; set; }
 
             public TransferParameters transfer_parameters { get; set; }
 
