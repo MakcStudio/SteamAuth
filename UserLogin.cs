@@ -126,8 +126,11 @@ namespace SteamAuth
 
             if (loginResponse.response.allowed_confirmations != null && loginResponse.response.allowed_confirmations.FirstOrDefault(x => x.confirmation_type == 3) != null)
             {
-                this.Requires2FA = true;
-                return LoginResult.Need2FA;
+                if (string.IsNullOrEmpty(this.TwoFactorCode))
+                {
+                    this.Requires2FA = true;
+                    return LoginResult.Need2FA;
+                }
             }
 
             if (string.IsNullOrEmpty(this.EmailCode) && loginResponse.response.allowed_confirmations != null && loginResponse.response.allowed_confirmations.FirstOrDefault(x => x.confirmation_type == 2) != null)
@@ -153,6 +156,26 @@ namespace SteamAuth
                 postData.Add("steamid", loginResponse.response.steamid);
                 postData.Add("code_type", "2");
                 postData.Add("code", this.EmailCode);
+
+
+                response = SteamWeb.MobileLoginRequest(APIEndpoints.UpdateAuthSessionWithSteamGuardCode, "POST", proxy, proxy_type, postData, cookies);
+                if (response == null) return LoginResult.GeneralFailure;
+
+                /*var _BeginAuthSessionViaCredentials = JsonConvert.DeserializeObject<BeginAuthSessionViaCredentials>(response);
+
+                if (_BeginAuthSessionViaCredentials == null || _BeginAuthSessionViaCredentials.response == null || string.IsNullOrEmpty(_BeginAuthSessionViaCredentials.response.client_id))
+                {
+                    return LoginResult.BadCredentials;
+                }*/
+            }
+             
+            if (!string.IsNullOrEmpty(this.TwoFactorCode))
+            {
+                postData.Clear();
+                postData.Add("client_id", loginResponse.response.client_id);
+                postData.Add("steamid", loginResponse.response.steamid);
+                postData.Add("code_type", "3");
+                postData.Add("code", this.TwoFactorCode);
 
 
                 response = SteamWeb.MobileLoginRequest(APIEndpoints.UpdateAuthSessionWithSteamGuardCode, "POST", proxy, proxy_type, postData, cookies);
