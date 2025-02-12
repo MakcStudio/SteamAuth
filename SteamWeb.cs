@@ -1,4 +1,4 @@
-﻿using MihaZupan;
+using MihaZupan;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -90,6 +90,11 @@ namespace SteamAuth
             request.UserAgent = "Mozilla/5.0 (Linux; U; Android 4.1.1; en-us; Google Nexus 4 - 4.1.1 - API 16 - 768x1280 Build/JRO03S) AppleWebKit/534.30 (KHTML, like Gecko) Version/4.0 Mobile Safari/534.30";
             request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
             request.Referer = referer;
+
+            if (string.IsNullOrEmpty(request.Referer))
+                request.Referer = GetSteamDomain(url) + "/";
+
+            request.Headers.Add("Origin", GetSteamDomain(url));
 
             if (headers != null)
             {
@@ -190,6 +195,11 @@ namespace SteamAuth
             request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
             request.Referer = referer;
 
+            if (string.IsNullOrEmpty(request.Referer))
+                request.Referer = GetSteamDomain(url) + "/";
+
+            request.Headers.Add("Origin", GetSteamDomain(url));
+
             if (headers != null)
             {
                 request.Headers.Add(headers);
@@ -200,7 +210,7 @@ namespace SteamAuth
                 request.CookieContainer = cookies;
             }
 
-            
+
             if (method == "POST")
             {
                 string boundary = CreateFormDataBoundary();
@@ -269,7 +279,26 @@ namespace SteamAuth
         {
             return "---------------------------" + DateTime.Now.Ticks.ToString("x");
         }
+
+        public static string GetSteamDomain(string url)
+        {
+            try
+            {
+                if (url.Contains("steamcommunity"))
+                    return "https://steamcommunity.com";
+                else if (url.Contains("store.steampowered"))
+                    return "https://store.steampowered.com";
+                else if (url.Contains("help.steampowered"))
+                    return "https://help.steampowered.com";
+                else if (url.Contains("checkout.steampowered"))
+                    return "https://checkout.steampowered.com";
+            }
+            catch (Exception ex) { }
+
+            return "https://steamcommunity.com";
+        }
     }
+
 
     public static class DictionaryExtensions
     {
